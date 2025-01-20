@@ -20,6 +20,9 @@
 本次課程完成樣貌，一個自動監控多節點的資源儀表板
 
 ![Final](images/image.png)
+![CPU-Memory](images/cpu-memory.png)
+![Disk-Network](images/disk-network.png)
+![Nodes-CPU](images/nodes-cpu.png)
 
 ---
 
@@ -61,9 +64,13 @@ kubectl port-forward elasticsearch-kibana-XXXX 5601:5601
 
 進入 Kibana > Stack Management > Index Pattern
 
+![Index Pattern](images/kibana-index-pattern.png)
+
 ### 6. Create Dashboard
 
 進入 Kibana > Dashboard > Create Dashboard
+
+![Create Dashboard](images/kibana-create-dashboard.png)
 
 ### 7. Scale up Cluster
 
