@@ -20,6 +20,19 @@ spec:
       port: 5601
       targetPort: 5601
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kibana-data-pvc
+  labels:
+    app: kibana
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -52,6 +65,13 @@ spec:
           env:
             - name: "SSL_MODE"
               value: "false"
+          volumeMounts:
+          - mountPath: ./elasticsearch-kibana 
+            name: kibana-volume
+      volumes:
+      - name: kibana-volume
+        persistentVolumeClaim:
+          claimName: kibana-data-pvc
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -181,6 +201,7 @@ data:
         Name                record_modifier
         Match               *
         Record              hostname ${HOSTNAME}
+        Record              nodename ${NODE_HOSTNAME}
   output-elasticsearch.conf: |
     [OUTPUT]
         Name                es
@@ -231,6 +252,11 @@ spec:
               mountPath: /var/log
             - name: config
               mountPath: /fluent-bit/etc
+          env:
+          - name: NODE_HOSTNAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
       terminationGracePeriodSeconds: 10
       serviceAccountName: fluent-bit
       tolerations:
