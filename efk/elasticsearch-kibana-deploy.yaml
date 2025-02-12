@@ -1,0 +1,40 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elasticsearch-kibana
+  labels:
+    app: elasticsearch-kibana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch-kibana
+  template:
+    metadata:
+      labels:
+        app: elasticsearch-kibana
+    spec:
+      containers:
+        - name: elasticsearch-kibana
+          image: nshou/elasticsearch-kibana:kibana7
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          ports:
+            - name: es-port
+              protocol: TCP
+              containerPort: 9200
+            - name: kibana-port
+              protocol: TCP
+              containerPort: 5601
+          env:
+            - name: "SSL_MODE"
+              value: "false"
+          volumeMounts:
+          - mountPath: ./elasticsearch-kibana 
+            name: kibana-volume
+      volumes:
+      - name: kibana-volume
+        persistentVolumeClaim:
+          claimName: kibana-data-pvc

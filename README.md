@@ -31,7 +31,7 @@
 ### 1. 安裝 k3d kubectl
 
 ```shell=
-https://github.com/fan9704/KubernetsInstallScript/blob/master/install_k3d.sh | bash
+curl https://github.com/fan9704/KubernetsInstallScript/blob/master/install_k3d.sh | bash
 ```
 
 ### 2. 配置 kubectl context

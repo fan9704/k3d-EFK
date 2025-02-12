@@ -1,0 +1,108 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-bit-cm
+data:
+  # https://github.com/microsoft/fluentbit-containerd-cri-o-json-log?tab=readme-ov-file#fluent-bit-with-containerd-cri-o-and-json
+  fluent-bit.conf: |-
+    [SERVICE]
+        Flush         1
+        Log_Level     info
+        Parsers_File  parsers.conf
+
+    @INCLUDE input-cpu.conf
+    @INCLUDE input-mem.conf
+    @INCLUDE input-k8s.conf
+    @INCLUDE input-k8s-sys.conf
+    @INCLUDE input-disk.conf
+    @INCLUDE input-network.conf
+    @INCLUDE filter-k8s.conf
+    @INCLUDE filter-k8s-sys.conf
+    @INCLUDE filter-node.conf
+    @INCLUDE output-elasticsearch.conf
+  parsers.conf: |-
+    [PARSER]
+        Name        cri
+        Format      regex
+        Regex       ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<log>.*)$
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L%z
+  input-cpu.conf: |
+    [INPUT]
+        Name cpu
+        Tag  infra-cpu
+        Interval_Sec  10
+        Interval_NSec 0
+  input-mem.conf: |
+    [INPUT]
+        Name mem
+        Tag  infra-memory
+        Interval_Sec  10
+        Interval_NSec 0
+  input-disk.conf: |
+    [INPUT]
+        Name disk
+        Tag  infra-disk
+        Interval_Sec  10
+        Interval_NSec 0
+  input-network.conf: |
+    [INPUT]
+        Name netif
+        Tag infra-network
+        Interval_Sec  10
+        Interval_NSec 0
+        Interface     eth0
+  input-k8s.conf: |
+    [INPUT]
+        Name              tail
+        Tag               kube.*
+        Path              /var/log/containers/*_default_*.log
+        Parser            cri
+        DB                /var/log/fluentbit.db
+        Mem_Buf_Limit     5MB
+        Skip_Long_Lines   on
+        Refresh_Interval  10
+  input-k8s-sys.conf: |
+    [INPUT]
+        Name              tail
+        Tag               system-k8s
+        Path              /var/log/syslog
+        DB                /var/log/syslog.db
+  filter-k8s.conf: |
+    [FILTER]
+        Name                kubernetes
+        Match               kube.*
+        Kube_URL            https://kubernetes.default.svc:443
+        Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
+        Kube_Tag_Prefix     kube.var.log.containers.
+        Merge_Log           on
+        Merge_Log_Key       log_processed
+        K8S-Logging.Parser  on
+        K8S-Logging.Exclude off
+        Annotations         on
+  filter-k8s-sys.conf: |
+    [FILTER]
+        Name                modify
+        Match               sys
+        Condition           Key_value_matches k3s "k3s"
+  filter-node.conf: |
+    [FILTER]
+        Name                record_modifier
+        Match               *
+        Record              hostname ${HOSTNAME}
+        Record              nodename ${NODE_HOSTNAME}
+  output-elasticsearch.conf: |
+    [OUTPUT]
+        Name                es
+        Match               *
+        Host                elasticsearch-kibana
+        Port                9200
+        Type                _doc
+        Logstash_Format     on
+        Logstash_Prefix     project
+        Logstash_DateFormat %Y.%m.%d
+        Time_Key_Format     %Y-%m-%dT%H:%M:%S
+        Buffer_Size         16k
+        

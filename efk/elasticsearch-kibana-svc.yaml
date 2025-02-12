@@ -1,0 +1,21 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-kibana
+  labels:
+    app: elasticsearch-kibana
+spec:
+  # type: ClusterIP
+  type: LoadBalancer
+  selector:
+    app: elasticsearch-kibana
+  ports:
+    - name: es-port
+      protocol: TCP
+      port: 9200
+      targetPort: 9200
+    - name: kibana-port
+      protocol: TCP
+      port: 5601
+      targetPort: 5601

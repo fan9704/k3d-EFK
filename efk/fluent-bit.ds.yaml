@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluent-bit
+  labels:
+    app: fluent-bit
+spec:
+  selector:
+    matchLabels:
+      app: fluent-bit
+  template:
+    metadata:
+      labels:
+        app: fluent-bit
+    spec:
+      volumes:
+        - name: log
+          hostPath:
+            path: /var/log
+            type: Directory
+        - name: config
+          configMap:
+            name: fluent-bit-cm
+      containers:
+        - name: fluent-bit
+          image: fluent/fluent-bit:1.7.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http-port
+              protocol: TCP
+              containerPort: 2020
+          volumeMounts:
+            - name: log
+              mountPath: /var/log
+            - name: config
+              mountPath: /fluent-bit/etc
+          env:
+          - name: NODE_HOSTNAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+      terminationGracePeriodSeconds: 10
+      serviceAccountName: fluent-bit
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          operator: "Exists"
+          effect: "NoSchedule"
+        - operator: "Exists"
+          effect: "NoExecute"
+        - operator: "Exists"
+          effect: "NoSchedule"
