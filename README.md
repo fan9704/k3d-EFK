@@ -46,8 +46,10 @@ export KUBECONFIG="$(k3d kubeconfig write k3s-default)"
 
 
 ```shell
+https://github.com/fan9704/k3d-EFK.git
+cd k3d-EFK
 cd efk
-kubetl apply -f .
+kubectl apply -f .
 ```
 
 ### 4. PortForwards EFK
