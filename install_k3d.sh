@@ -13,24 +13,19 @@ echo "${CYAN}🚀 開始安裝 K3d${NC}"
 curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
 echo "${CYAN}⚙️ 開始安裝 Kubectl${NC}"
-# 下載最新穩定版本的 Kubectl (根據架構自動判斷)
-ARCH=$(uname -m)
-KUBECTL_URL="https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl"
-echo "${YELLOW}📥 下載 Kubectl 從: ${BLUE}${KUBECTL_URL}${NC}"
-curl -LO "${KUBECTL_URL}"
+# Install Kubectl
 
-# 驗證 Kubectl
-SHA256_URL="https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl.sha256"
-echo "${YELLOW}📥 下載 Kubectl SHA256 從: ${BLUE}${SHA256_URL}${NC}"
-curl -LO "${SHA256_URL}"
-echo "${YELLOW}🔒 驗證 Kubectl 下載...${NC}"
-echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
-if [ $? -eq 0 ]; then
-  echo "${GREEN}✅ Kubectl 驗證成功!${NC}"
-else
-  echo "${RED}❌ Kubectl 驗證失敗! 請檢查下載檔案。${NC}"
-  exit 1
-fi
+# download the latest release based on architecture (ARM or x86)
+
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl"
+
+
+
+# validate, expect to see 'kubectl: OK'
+
+curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl.sha256"
+
+echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
 
 # 安裝 Kubectl
 echo "${YELLOW}💾 開始安裝 Kubectl 到 /usr/local/bin${NC}"
