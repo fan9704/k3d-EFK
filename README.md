@@ -46,7 +46,7 @@ export KUBECONFIG="$(k3d kubeconfig write k3s-default)"
 
 
 ```shell
-https://github.com/fan9704/k3d-EFK.git
+git clone https://github.com/fan9704/k3d-EFK.git
 cd k3d-EFK
 cd efk
 kubectl apply -f .
