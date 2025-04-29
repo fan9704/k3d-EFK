@@ -31,7 +31,7 @@
 ### 1. 安裝 k3d kubectl
 
 ```shell=
-curl https://github.com/fan9704/KubernetsInstallScript/blob/master/install_k3d.sh | bash
+curl https://raw.githubusercontent.com/fan9704/KubernetsInstallScript/refs/heads/master/install_k3d.sh | bash
 ```
 
 ### 2. 配置 kubectl context
@@ -44,8 +44,10 @@ export KUBECONFIG="$(k3d kubeconfig write k3s-default)"
 
 ### 3. Setup EFK
 
+
 ```shell
-kubetl apply -f mertic.yaml
+cd efk
+kubetl apply -f .
 ```
 
 ### 4. PortForwards EFK
