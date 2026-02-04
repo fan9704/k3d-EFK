@@ -11,7 +11,7 @@
 3. high availability
 4. Elasticsearch DSL
 5. Related DevOps Issues
-6. A liite be Kubernetes
+6. A litte be Kubernetes
 
 ---
 
